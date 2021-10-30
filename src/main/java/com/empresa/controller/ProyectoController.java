@@ -4,12 +4,12 @@ import java.io.File;
 import java.util.Map;
 
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
@@ -24,12 +24,18 @@ public class ProyectoController {
 		model.addAttribute("name", name);
 		return "greeting";
 	}*/
-	
+
 
 	
-	@GetMapping("/OCR")
-	public String OCR(@RequestParam Map<String,String> requestParams , Model model)  {
+	@RequestMapping(value="/OCR", method =  RequestMethod.GET)
+	public ModelAndView OCR(@RequestParam Map<String,String> requestParams, Model model) {
+
+	//@RequestParam("ruta") MultipartFile multipartFile ,Model model
+
 		
+		ModelAndView modelAndView = new ModelAndView();
+	    modelAndView.setViewName("ocr");
+	    
 		String name=requestParams.get("ruta");
 		String español=requestParams.get("spa");
 		String ingles=requestParams.get("eng");
@@ -37,10 +43,13 @@ public class ProyectoController {
 		String aleman=requestParams.get("deu");
 		String portugues=requestParams.get("por");
 		
+		//String filename = StringUtils.cleanPath(multipartFile.getOriginalFilename());
+        
+		
 		ITesseract image = new Tesseract();
 		
 		image.setDatapath("D:\\Program Files\\Tesseract-OCR\\tessdata");
-
+		
 		if(español!=null) {
 			image.setLanguage("spa");
 		}
@@ -61,13 +70,15 @@ public class ProyectoController {
 
 		try {
 			String str = image.doOCR(new File("F:\\Descargas\\Proy. Integrador\\"+name));
+			//URLbase agregado proximamente
 			
 			model.addAttribute("OCRtext", str);
+			//System.out.println(filename);
 			
 		} catch (TesseractException e) {
 			System.out.println("Exception " + e.getMessage());
 		}
-		return "ocr";
+		return modelAndView;
 	} 
 
 	
